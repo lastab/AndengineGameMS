@@ -53,28 +53,38 @@ public class StartActivity extends BaseGameActivity {
 		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
 		
 		return engineOptions;
-		
-		
 	}
+	
+	//=============================================================
+	//Create Resources
+	//=============================================================
 	@Override
-	public void onCreateResources(OnCreateResourcesCallback arg0)
+	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback)
 			throws Exception {
 		
-	}
-	@Override
-	public void onCreateScene(OnCreateSceneCallback arg0) throws Exception {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void onPopulateScene(Scene arg0, OnPopulateSceneCallback arg1)
-			throws Exception {
-		// TODO Auto-generated method stub
+		pOnCreateResourcesCallback.onCreateResourcesFinished();
 		
 	}
 	
-		
 	
+	//=============================================================
+	//Create Scene
+	//=============================================================
+		@Override
+	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback ) throws Exception {
+		mScene=new Scene();
+		pOnCreateSceneCallback.onCreateSceneFinished(mScene);
+		
+	}
+		
 
-
+	//=============================================================
+	//Populate Scene
+	//=============================================================		
+	@Override
+	public void onPopulateScene(Scene arg0, OnPopulateSceneCallback pOnPopulateSceneCallback)
+			throws Exception {
+		pOnPopulateSceneCallback.onPopulateSceneFinished();
+		
+	}
 }
