@@ -1,5 +1,7 @@
 package com.mosswat.mosquitoswatter;
 
+import org.andengine.engine.Engine;
+import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
@@ -55,6 +57,14 @@ public class StartActivity extends BaseGameActivity {
 		return engineOptions;
 	}
 	
+	//=============================================================
+	//Create Engine	
+	//=============================================================
+	@Override
+	public Engine onCreateEngine(EngineOptions pEngineOptions) {
+		return new FixedStepEngine (pEngineOptions, 60);
+	}
+
 	//=============================================================
 	//Create Resources
 	//=============================================================
