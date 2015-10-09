@@ -1,62 +1,51 @@
 package com.mosswat.mosquitoswatter;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
-import org.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
+import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
 import org.andengine.entity.scene.Scene;
-import org.andengine.opengl.texture.Texture;
-import org.andengine.opengl.texture.region.TextureRegion;
+import org.andengine.entity.sprite.Sprite;
+import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.bitmap.BitmapTexture;
+import org.andengine.opengl.texture.region.ITextureRegion;
+import org.andengine.opengl.texture.region.TextureRegionFactory;
 import org.andengine.ui.activity.BaseGameActivity;
+import org.andengine.ui.activity.SimpleBaseGameActivity;
+import org.andengine.util.adt.io.in.IInputStreamOpener;
+import org.andengine.util.debug.Debug;
 
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
-
-public class StartActivity extends BaseGameActivity {
+public class StartActivity extends SimpleBaseGameActivity {
 	// ================================================================
 	// Constants
 	// ================================================================
-	private static final int WIDTH=800;
-	private static final int HEIGHT=480;
-	
+	private static final int CAMERA_WIDTH=800;
+	private static final int CAMERA_HEIGHT=480;
+
 	// ================================================================
 	// VARIABLES
 	// ================================================================
-	private Camera mCamera;
-	private Scene mScene;
-	
-	
-	
+	private ITextureRegion mBackgroundTextureRegion, mMosquito;
+
+
 	// ================================================================
 	// CREATE ENGINE OPTIONS
 	// ================================================================	
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-	
-		//Create our game's camera (view)
-		mCamera= new Camera(0,0,WIDTH,HEIGHT);
-		
-		/*Setup our engine options. Including resolution policy, screen 
-		 *orientation and full screen settings.
-		 */
-		EngineOptions engineOptions=new EngineOptions(true,ScreenOrientation.LANDSCAPE_FIXED,
-				new FillResolutionPolicy(), mCamera);
-		
-		//allow our engine to play sound and music
-		engineOptions.getAudioOptions().setNeedsMusic(true);
-		engineOptions.getAudioOptions().setNeedsSound(true);
-		
-		//do not allow our game to sleep while it's running
-		engineOptions.setWakeLockOptions(WakeLockOptions.SCREEN_ON);
-		
-		return engineOptions;
+
+		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, 
+		    new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
 	}
-	
+
 	//=============================================================
 	//Create Engine	
 	//=============================================================
@@ -69,32 +58,52 @@ public class StartActivity extends BaseGameActivity {
 	//Create Resources
 	//=============================================================
 	@Override
-	public void onCreateResources(OnCreateResourcesCallback pOnCreateResourcesCallback)
-			throws Exception {
+	protected void onCreateResources() {
+		try {
+		    // 1 - Set up bitmap textures
+		    ITexture backgroundTexture = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+		        @Override
+		        public InputStream open() throws IOException {
+		            return getAssets().open("gfx/background.png");
+		        }
+		    });
+		    
+		    ITexture mosquitoTexture = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+		        @Override
+		        public InputStream open() throws IOException {
+		            return getAssets().open("gfx/mosquito.png");
+		        }
+		    });
+		    
+		    // 2 - Load bitmap textures into VRAM
+		    backgroundTexture.load();
+		    mosquitoTexture.load();
+		    
+		 // 3 - Set up texture regions
+		    this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
+		    this.mMosquito= TextureRegionFactory.extractFromTexture(mosquitoTexture);
+		} catch (IOException e) {
+		    Debug.e(e);
+		}
 		
-		pOnCreateResourcesCallback.onCreateResourcesFinished();
+		
+		
 		
 	}
-	
 	
 	//=============================================================
 	//Create Scene
 	//=============================================================
-		@Override
-	public void onCreateScene(OnCreateSceneCallback pOnCreateSceneCallback ) throws Exception {
-		mScene=new Scene();
-		pOnCreateSceneCallback.onCreateSceneFinished(mScene);
-		
+	@Override	
+	protected Scene onCreateScene() {
+		// 1 - Create new scene
+		final Scene scene = new Scene();
+		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
+		scene.attachChild(backgroundSprite);
+		return scene;
 	}
-		
 
-	//=============================================================
-	//Populate Scene
-	//=============================================================		
-	@Override
-	public void onPopulateScene(Scene arg0, OnPopulateSceneCallback pOnPopulateSceneCallback)
-			throws Exception {
-		pOnPopulateSceneCallback.onPopulateSceneFinished();
-		
-	}
+
+
+
 }
