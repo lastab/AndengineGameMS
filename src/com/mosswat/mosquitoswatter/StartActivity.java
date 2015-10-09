@@ -33,6 +33,7 @@ public class StartActivity extends SimpleBaseGameActivity {
 	// VARIABLES
 	// ================================================================
 	private ITextureRegion mBackgroundTextureRegion, mMosquito;
+	private Sprite mMosquito1;
 
 
 	// ================================================================
@@ -100,6 +101,12 @@ public class StartActivity extends SimpleBaseGameActivity {
 		final Scene scene = new Scene();
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
 		scene.attachChild(backgroundSprite);
+		
+		// 2 - Add the mosquito
+		mMosquito1 = new Sprite(192, 63, this.mMosquito, getVertexBufferObjectManager());
+		scene.attachChild(mMosquito1);
+		
+		
 		return scene;
 	}
 
