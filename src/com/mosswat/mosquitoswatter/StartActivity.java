@@ -10,8 +10,12 @@ import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.WakeLockOptions;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.scene.IOnAreaTouchListener;
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
@@ -21,8 +25,9 @@ import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
+import org.andengine.util.math.MathUtils;
 
-public class StartActivity extends SimpleBaseGameActivity {
+public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouchListener{
 	// ================================================================
 	// Constants
 	// ================================================================
@@ -76,6 +81,16 @@ public class StartActivity extends SimpleBaseGameActivity {
 		        }
 		    });
 		    
+
+		    ITexture swatterTexture = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+		        @Override
+		        public InputStream open() throws IOException {
+		            return getAssets().open("gfx/swatter.png");
+		            }
+		    });
+		    
+		    
+		    
 		    // 2 - Load bitmap textures into VRAM
 		    backgroundTexture.load();
 		    mosquitoTexture.load();
@@ -103,12 +118,36 @@ public class StartActivity extends SimpleBaseGameActivity {
 		scene.attachChild(backgroundSprite);
 		
 		// 2 - Add the mosquito
-		mMosquito1 = new Sprite(192, 63, this.mMosquito, getVertexBufferObjectManager());
-		scene.attachChild(mMosquito1);
+		for (int i=0; i<5;i++){
+			generateMosquito(scene);
+		}
 		
 		
 		return scene;
 	}
+
+	
+	
+	//==============================================================
+	//onAreatouchListener
+	//==============================================================
+
+	@Override
+	public boolean onAreaTouched(TouchEvent arg0, ITouchArea arg1, float arg2,
+			float arg3) {
+
+		return false;
+	}
+	
+	
+	
+	public void generateMosquito(Scene scene){
+		mMosquito1 = new Sprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquito, getVertexBufferObjectManager());
+		//
+		scene.attachChild(mMosquito1);
+		scene.registerTouchArea(mMosquito1);
+	}
+	
 
 
 
