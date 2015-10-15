@@ -9,12 +9,16 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.scene.IOnAreaTouchListener;
+import org.andengine.entity.scene.IOnSceneTouchListener;
+import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.background.IBackground;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -39,23 +43,25 @@ import org.andengine.util.math.MathUtils;
  * @author Nicolas Gramlich
  * @since 11:54:51 - 03.04.2010
  */
-public class GamePlay extends SimpleBaseGameActivity {
+public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchListener, IOnAreaTouchListener {
 	// ===========================================================
 	// Constants
 	// ===========================================================
 
 	private static final int CAMERA_WIDTH = 800;
 	private static final int CAMERA_HEIGHT = 480;
+	
+	private static final float DEMO_VELOCITY = 100.0f;
 
 	// ===========================================================
 	// Fields
 	// ===========================================================
 
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
-
 	private TiledTextureRegion mMosquitoTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
 	private AnimatedSprite snapmosquito;
+	private Scene myscene;
 	
 
 	// ===========================================================
@@ -127,10 +133,13 @@ public class GamePlay extends SimpleBaseGameActivity {
 		scene.attachChild(backgroundSprite);
 	
 	
-		/* Snapmosquito. */
-		for (int i=0; i<5;i++){
-			generateMosquito(scene);
-		}
+		
+		myscene=scene;
+		myscene.setOnSceneTouchListener(this);
+		myscene.setOnAreaTouchListener(this);
+		generateMosquito(scene);
+		
+
 		
 
 		return scene;
@@ -143,8 +152,38 @@ public class GamePlay extends SimpleBaseGameActivity {
 	public void generateMosquito(Scene scene){
 		snapmosquito = new AnimatedSprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
 		snapmosquito.animate(50);
+		scene.registerTouchArea(snapmosquito);
 		scene.attachChild(snapmosquito);
 	}
+
+	@Override
+	public boolean onSceneTouchEvent(Scene arg0, TouchEvent arg1) {
+		/*if (arg1.getAction()==TouchEvent.ACTION_DOWN)
+		{/* Snapmosquito. */		
+			//generateMosquito(myscene);}
+		return false;
+	}
+
+	@Override
+	public boolean onAreaTouched(TouchEvent arg0, ITouchArea arg1, float arg2,
+			float arg3) {
+		
+		if (arg0.getAction()==TouchEvent.ACTION_DOWN)
+		{
+			//delete mosquito
+			this.myscene.unregisterTouchArea((AnimatedSprite)arg1);
+			this.myscene.detachChild((AnimatedSprite)arg1);
+			
+			//show dead mosquito
+			generateMosquito(myscene);
+			
+			
+			System.gc();
+		}
+		return false;
+	}
+	
+	
 	
 	
 	// ===========================================================
