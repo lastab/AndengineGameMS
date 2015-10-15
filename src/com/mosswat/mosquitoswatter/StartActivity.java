@@ -14,13 +14,19 @@ import org.andengine.entity.scene.IOnAreaTouchListener;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
+import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.texture.ITexture;
+import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
+import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlasTextureRegionFactory;
+import org.andengine.opengl.texture.atlas.bitmap.BuildableBitmapTextureAtlas;
 import org.andengine.opengl.texture.bitmap.BitmapTexture;
 import org.andengine.opengl.texture.region.ITextureRegion;
 import org.andengine.opengl.texture.region.TextureRegionFactory;
+import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.ui.activity.BaseGameActivity;
 import org.andengine.ui.activity.SimpleBaseGameActivity;
 import org.andengine.util.adt.io.in.IInputStreamOpener;
@@ -39,9 +45,11 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	// ================================================================
 	// VARIABLES
 	// ================================================================
-	
-	private ITextureRegion mBackgroundTextureRegion, mMosquitoTextureRegion,mSwatterTextureRegion;
-	private Sprite mMosquitoSprite,mSwatterSprite;
+	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
+	private TiledTextureRegion mSwatterTextureRegion,mMosquitoTextureRegion;
+	private ITextureRegion mBackgroundTextureRegion;
+	private Sprite mSwatterSprite;
+	private AnimatedSprite  mMosquitoSprite;
 	private Scene thisScene;
 
 
@@ -70,6 +78,11 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	@Override
 	protected void onCreateResources() {
 		try {
+			
+			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
+			
+			
+			
 		    // 1 - Set up bitmap textures
 		    ITexture backgroundTexture = new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
 		        @Override
@@ -101,8 +114,12 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 		    
 		 // 3 - Set up texture regions
 		    this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
-		    this.mMosquitoTextureRegion= TextureRegionFactory.extractFromTexture(mosquitoTexture);
-		    this.mSwatterTextureRegion=TextureRegionFactory.extractFromTexture(swatterTexture);
+		    this.mMosquitoTextureRegion=BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
+			//    		TextureRegionFactory.extractFromTexture(swatterTexture); 
+		    
+		    		TextureRegionFactory.extractFromTexture(mosquitoTexture);
+	//	    this.mSwatterTextureRegion=BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "snapdragon_tiled.png", 4, 1);
+		//    		TextureRegionFactory.extractFromTexture(swatterTexture);
 		} catch (IOException e) {
 		    Debug.e(e);
 		}
@@ -119,14 +136,14 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	protected Scene onCreateScene() {
 		// 1 - Create new scene
 		thisScene = new Scene();
-		
+		thisScene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
 		thisScene.attachChild(backgroundSprite);
 		
 		// 2 - Add the mosquito
-		for (int i=0; i<5;i++){
+		//for (int i=0; i<5;i++){
 			generateMosquito();
-		}
+		//}
 		
 		
 		return thisScene;
@@ -155,11 +172,12 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	
 	
 	public void generateMosquito(){
-		mMosquitoSprite = new Sprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), 
-				this.mMosquitoTextureRegion, getVertexBufferObjectManager());
-
+		mMosquitoSprite = new AnimatedSprite(30, 20, this.mMosquitoTextureRegion, this.getVertexBufferObjectManager()); 
+				//Sprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), 
+				//this.mMosquitoTextureRegion, getVertexBufferObjectManager());
+		mMosquitoSprite.animate(100);
 		thisScene.attachChild(mMosquitoSprite);
-		thisScene.registerTouchArea(mMosquitoSprite);
+		//thisScene.registerTouchArea(mMosquitoSprite);
 	}
 	
 
