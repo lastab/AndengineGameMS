@@ -27,6 +27,8 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.math.MathUtils;
 
+import android.util.Log;
+
 public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouchListener{
 	// ================================================================
 	// Constants
@@ -37,8 +39,10 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	// ================================================================
 	// VARIABLES
 	// ================================================================
-	private ITextureRegion mBackgroundTextureRegion, mMosquito;
-	private Sprite mMosquito1;
+	
+	private ITextureRegion mBackgroundTextureRegion, mMosquitoTextureRegion,mSwatterTextureRegion;
+	private Sprite mMosquitoSprite,mSwatterSprite;
+	private Scene thisScene;
 
 
 	// ================================================================
@@ -97,7 +101,8 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 		    
 		 // 3 - Set up texture regions
 		    this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
-		    this.mMosquito= TextureRegionFactory.extractFromTexture(mosquitoTexture);
+		    this.mMosquitoTextureRegion= TextureRegionFactory.extractFromTexture(mosquitoTexture);
+		    this.mSwatterTextureRegion=TextureRegionFactory.extractFromTexture(swatterTexture);
 		} catch (IOException e) {
 		    Debug.e(e);
 		}
@@ -113,17 +118,18 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	@Override	
 	protected Scene onCreateScene() {
 		// 1 - Create new scene
-		final Scene scene = new Scene();
+		thisScene = new Scene();
+		
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
-		scene.attachChild(backgroundSprite);
+		thisScene.attachChild(backgroundSprite);
 		
 		// 2 - Add the mosquito
 		for (int i=0; i<5;i++){
-			generateMosquito(scene);
+			generateMosquito();
 		}
 		
 		
-		return scene;
+		return thisScene;
 	}
 
 	
@@ -135,17 +141,25 @@ public class StartActivity extends SimpleBaseGameActivity implements IOnAreaTouc
 	@Override
 	public boolean onAreaTouched(TouchEvent arg0, ITouchArea arg1, float arg2,
 			float arg3) {
-
+		mSwatterSprite=new Sprite(arg2,arg3,
+					this.mSwatterTextureRegion, getVertexBufferObjectManager());
+		
+		thisScene.attachChild(mSwatterSprite);
+		
+		Log.d("touched","touched");
+		
+		
 		return false;
 	}
 	
 	
 	
-	public void generateMosquito(Scene scene){
-		mMosquito1 = new Sprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquito, getVertexBufferObjectManager());
-		//
-		scene.attachChild(mMosquito1);
-		scene.registerTouchArea(mMosquito1);
+	public void generateMosquito(){
+		mMosquitoSprite = new Sprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), 
+				this.mMosquitoTextureRegion, getVertexBufferObjectManager());
+
+		thisScene.attachChild(mMosquitoSprite);
+		thisScene.registerTouchArea(mMosquitoSprite);
 	}
 	
 
