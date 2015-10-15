@@ -19,6 +19,7 @@ import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.input.touch.controller.ITouchEventCallback;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -59,8 +60,9 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
 	private TiledTextureRegion mMosquitoTextureRegion;
-	private ITextureRegion mBackgroundTextureRegion;
+	private ITextureRegion mBackgroundTextureRegion,mDeadMosquitoTextureRegion;
 	private AnimatedSprite snapmosquito;
+	private Sprite spriteDeadMosquito;
 	private Scene myscene;
 	
 
@@ -102,6 +104,13 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			    }
 			});
 		
+		ITexture deadMosquitoTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+		    @Override
+		    public InputStream open() throws IOException {
+		        return getAssets().open("gfx/deadmosquito.png");
+		    }
+		});
+		
 
 		this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
 		
@@ -109,6 +118,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
 		
 		this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
+		this.mDeadMosquitoTextureRegion= TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
 	
 		try {
 			this.mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
@@ -116,7 +126,12 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		} catch (TextureAtlasBuilderException e) {
 			Debug.e(e);
 		}
+		
+		
+		//load texture
 		backgroundTexture.load();
+		deadMosquitoTexture.load();
+		
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -130,6 +145,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		final Scene scene = new Scene();		
 		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
+		
 		scene.attachChild(backgroundSprite);
 	
 	
@@ -152,6 +168,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	public void generateMosquito(Scene scene){
 		snapmosquito = new AnimatedSprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
 		snapmosquito.animate(50);
+		
 		scene.registerTouchArea(snapmosquito);
 		scene.attachChild(snapmosquito);
 	}
@@ -175,7 +192,10 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			this.myscene.detachChild((AnimatedSprite)arg1);
 			
 			//show dead mosquito
+			this.spriteDeadMosquito=new Sprite(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+			myscene.attachChild(spriteDeadMosquito);
 			generateMosquito(myscene);
+			
 			
 			
 			System.gc();
