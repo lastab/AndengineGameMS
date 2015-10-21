@@ -9,20 +9,15 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
-import org.andengine.entity.modifier.LoopEntityModifier;
-import org.andengine.entity.modifier.PathModifier;
-import org.andengine.entity.modifier.PathModifier.IPathModifierListener;
 import org.andengine.entity.scene.IOnAreaTouchListener;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
-import org.andengine.entity.scene.background.IBackground;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
-import org.andengine.input.touch.controller.ITouchEventCallback;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -40,7 +35,8 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.math.MathUtils;
 
-import com.mosswat.gameelements.DeadMosquito;
+import com.mosswat.gameelements.DeadInsect;
+import com.mosswat.gameelements.LiveInsect;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -54,11 +50,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	// Constants
 	// ===========================================================
 
-	private static final int CAMERA_WIDTH = 800;
-	private static final int CAMERA_HEIGHT = 480;
-	
-	private static final float DEMO_VELOCITY = 100.0f;
-
+	public static final int CAMERA_WIDTH = 800;
+	public static final int CAMERA_HEIGHT = 480;
 	// ===========================================================
 	// Fields
 	// ===========================================================
@@ -66,8 +59,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
 	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
-	private AnimatedSprite snapmosquito;
-	private DeadMosquito spriteDeadMosquito;
+	private LiveInsect snapmosquito;
+	private DeadInsect spriteDeadMosquito;
 	private Scene myscene;
 	
 
@@ -175,7 +168,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	// Methods
 	// ===========================================================
 	public void generateMosquito(Scene scene){
-		snapmosquito = new AnimatedSprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
+		snapmosquito = new LiveInsect(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
 		snapmosquito.animate(50);
 		
 		
@@ -203,7 +196,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			this.myscene.detachChild((AnimatedSprite)arg1);
 			
 			//show dead mosquito
-			this.spriteDeadMosquito=new DeadMosquito(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+			this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
 			
 			
 			
