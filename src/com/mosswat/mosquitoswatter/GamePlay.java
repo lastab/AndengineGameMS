@@ -9,6 +9,9 @@ import org.andengine.engine.camera.Camera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
+import org.andengine.entity.modifier.LoopEntityModifier;
+import org.andengine.entity.modifier.PathModifier;
+import org.andengine.entity.modifier.PathModifier.IPathModifierListener;
 import org.andengine.entity.scene.IOnAreaTouchListener;
 import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
@@ -37,6 +40,8 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.math.MathUtils;
 
+import com.mosswat.gameelements.DeadMosquito;
+
 /**
  * (c) 2010 Nicolas Gramlich
  * (c) 2011 Zynga
@@ -59,10 +64,10 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	// ===========================================================
 
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
-	private TiledTextureRegion mMosquitoTextureRegion;
-	private ITextureRegion mBackgroundTextureRegion,mDeadMosquitoTextureRegion;
+	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion;
+	private ITextureRegion mBackgroundTextureRegion;
 	private AnimatedSprite snapmosquito;
-	private Sprite spriteDeadMosquito;
+	private DeadMosquito spriteDeadMosquito;
 	private Scene myscene;
 	
 
@@ -116,9 +121,11 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		
 		
 		this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
+		this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",1,1);
+				//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
 		
 		this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
-		this.mDeadMosquitoTextureRegion= TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
+		
 	
 		try {
 			this.mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
@@ -155,6 +162,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		myscene.setOnAreaTouchListener(this);
 		generateMosquito(scene);
 		
+		
+		
 
 		
 
@@ -168,6 +177,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	public void generateMosquito(Scene scene){
 		snapmosquito = new AnimatedSprite(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
 		snapmosquito.animate(50);
+		
+		
 		
 		scene.registerTouchArea(snapmosquito);
 		scene.attachChild(snapmosquito);
@@ -192,9 +203,13 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			this.myscene.detachChild((AnimatedSprite)arg1);
 			
 			//show dead mosquito
-			this.spriteDeadMosquito=new Sprite(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+			this.spriteDeadMosquito=new DeadMosquito(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+			
+			
+			
 			myscene.attachChild(spriteDeadMosquito);
 			generateMosquito(myscene);
+			
 			
 			
 			
