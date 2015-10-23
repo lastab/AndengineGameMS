@@ -118,12 +118,11 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		
 		
 		this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
-		this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",1,1);
+		this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",5,1);
 				//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
 		
 		this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
-		
-	
+			
 		try {
 			this.mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
 			this.mBitmapTextureAtlas.load();
