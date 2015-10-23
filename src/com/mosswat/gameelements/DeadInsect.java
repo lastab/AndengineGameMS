@@ -20,7 +20,7 @@ public class DeadInsect extends AnimatedSprite{
 		this.mPhysicsHandler.setAcceleration(0.0f, SPEED);
 	}
 	
-	
+
 	@Override
 	protected void onManagedUpdate(final float pSecondsElapsed) {
 		if (this.mY>GamePlay.CAMERA_HEIGHT-55){
