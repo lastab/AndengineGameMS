@@ -56,6 +56,10 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	// Fields
 	// ===========================================================
 
+	public static int score=0;
+	//public static int miss;
+	
+	
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
 	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
@@ -154,6 +158,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		myscene.setOnSceneTouchListener(this);
 		myscene.setOnAreaTouchListener(this);
 		generateMosquito(scene);
+		generateMosquito(scene);
 		
 		
 		
@@ -204,8 +209,10 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			generateMosquito(myscene);
 			
 			
+			//increase the score
+			score++;
 			
-			
+			//call garbage collection
 			System.gc();
 		}
 		return false;
