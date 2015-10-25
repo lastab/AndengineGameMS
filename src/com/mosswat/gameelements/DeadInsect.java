@@ -10,7 +10,7 @@ import com.mosswat.mosquitoswatter.GamePlay;
 
 public class DeadInsect extends AnimatedSprite{
 
-	public static final float SPEED=50.0f;
+	public static final float ACCLERATION=50.0f;
 	PhysicsHandler mPhysicsHandler;
 	private int gravestoneNo;
 	
@@ -20,7 +20,7 @@ public class DeadInsect extends AnimatedSprite{
 		this.registerUpdateHandler(this.mPhysicsHandler);
 		
 		this.mPhysicsHandler.setVelocity(0.0f, 100.0f);
-		this.mPhysicsHandler.setAcceleration(0.0f, SPEED);
+		this.mPhysicsHandler.setAcceleration(0.0f, ACCLERATION);
 		
 		//randomize the gravestone
 		gravestoneNo=MathUtils.random(1, 4);
