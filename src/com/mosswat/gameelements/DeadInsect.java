@@ -29,7 +29,10 @@ public class DeadInsect extends AnimatedSprite{
 
 	@Override
 	protected void onManagedUpdate(final float pSecondsElapsed) {
-		if (this.mY>GamePlay.CAMERA_HEIGHT-55){
+		
+		
+		//check if the dead mosquito has touched the edge of the screen or not
+		if (this.mY>GamePlay.CAMERA_HEIGHT-this.getHeight()){
 			this.mPhysicsHandler.setVelocity(0.0f,0.0f);
 			this.mPhysicsHandler.setAcceleration(0.0f,0.0f);
 			

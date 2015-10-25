@@ -219,13 +219,16 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			this.myscene.detachChild(mosquito);
 			
 			
-			float height=mosquito.getHeightScaled();
-			float width=mosquito.getWidthScaled();
 			
 			
 			
 			//show dead mosquito
 			this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+			
+			
+			//Scaling the size of dead mosquito=size of live mosquito
+			 float height=mosquito.getHeightScaled();
+			 float width=mosquito.getWidthScaled();
 			this.spriteDeadMosquito.setHeight(height);
 			this.spriteDeadMosquito.setWidth(width);
 			
