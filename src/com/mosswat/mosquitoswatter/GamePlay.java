@@ -20,8 +20,11 @@ import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
+import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
 import org.andengine.input.touch.TouchEvent;
+import org.andengine.opengl.font.Font;
+import org.andengine.opengl.font.FontFactory;
 import org.andengine.opengl.texture.ITexture;
 import org.andengine.opengl.texture.TextureOptions;
 import org.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -39,6 +42,9 @@ import org.andengine.util.adt.io.in.IInputStreamOpener;
 import org.andengine.util.debug.Debug;
 import org.andengine.util.math.MathUtils;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
+
 import com.mosswat.gameelements.DeadInsect;
 import com.mosswat.gameelements.LiveInsect;
 
@@ -49,7 +55,7 @@ import com.mosswat.gameelements.LiveInsect;
  * @author Nicolas Gramlich
  * @since 11:54:51 - 03.04.2010
  */
-public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchListener, IOnAreaTouchListener {
+public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchListener {
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -61,6 +67,7 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	// ===========================================================
 
 	public static int score=0;
+	public static int combo=0;
 	//public static int miss;
 	
 	
@@ -73,6 +80,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	
 	private Sound mSwattingSound, mMosquitoWings;
 	private Music mMusic;
+	private Font mFont;
+	public Text scoreText; 
 
 	// ===========================================================
 	// Constructors
@@ -149,6 +158,12 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		backgroundTexture.load();
 		deadMosquitoTexture.load();
 		
+		
+		//fonts
+		final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+		this.mFont = new Font(this.getFontManager(), fontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 40, true, Color.WHITE);
+		this.mFont.load();
+		
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
@@ -199,23 +214,22 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
 		
 		scene.attachChild(backgroundSprite);
-	
-	
 		
 		myscene=scene;
-		myscene.setOnSceneTouchListener(this);
+		
 		myscene.setOnAreaTouchListener(this);
 		generateMosquito(scene);
 		generateMosquito(scene);
-		mMusic.play();
-		
-		
-		
-		
+		mMusic.play();	
 
 		
-
+		
+		//text
+		scoreText = new Text(CAMERA_WIDTH-200,10, this.mFont, "Score:", "Score: XXXXX".length(), this.getVertexBufferObjectManager());
+		myscene.attachChild(scoreText);
+		
 		return scene;
+		
 
 	}
 
@@ -238,13 +252,6 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		
 	}
 
-	@Override
-	public boolean onSceneTouchEvent(Scene arg0, TouchEvent arg1) {
-		/*if (arg1.getAction()==TouchEvent.ACTION_DOWN)
-		{/* Snapmosquito. */		
-			//generateMosquito(myscene);}
-		return false;
-	}
 
 	@Override
 	public boolean onAreaTouched(TouchEvent arg0, ITouchArea arg1, float arg2,
@@ -283,7 +290,12 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			//this.mMosquitoWings.stop();
 			
 			//increase the score
-			score++;
+			combo++;
+			score+=combo;
+			
+			
+			//display Score
+			scoreText.setText("Score:"+score);
 			
 			//call garbage collection
 			System.gc();
