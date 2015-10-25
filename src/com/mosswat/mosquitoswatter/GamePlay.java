@@ -3,6 +3,8 @@ package com.mosswat.mosquitoswatter;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.andengine.audio.sound.Sound;
+import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
@@ -67,6 +69,8 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	private DeadInsect spriteDeadMosquito;
 	private Scene myscene;
 	
+	private Sound mSwattingSound;
+	
 
 	// ===========================================================
 	// Constructors
@@ -83,7 +87,11 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 	@Override
 	public EngineOptions onCreateEngineOptions() {
 		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
-		return new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
+		engineOptions.getAudioOptions().setNeedsSound(true);
+
+		return engineOptions;
+		
 		
 	}	
 
@@ -138,6 +146,16 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+		}
+		
+		
+		
+		//sound
+		SoundFactory.setAssetBasePath("mfx/");
+		try {
+			this.mSwattingSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "swatting.ogg");
+		} catch (final IOException e) {
+			Debug.e(e);
 		}
 	}
 
@@ -207,6 +225,9 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 			myscene.attachChild(spriteDeadMosquito);
 			generateMosquito(myscene);
 			
+			
+			//generate swatting sound
+			this.mSwattingSound.play();
 			
 			//increase the score
 			score++;
