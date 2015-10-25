@@ -214,12 +214,20 @@ public class GamePlay extends SimpleBaseGameActivity implements IOnSceneTouchLis
 		if (arg0.getAction()==TouchEvent.ACTION_DOWN)
 		{
 			//delete mosquito
-			this.myscene.unregisterTouchArea((AnimatedSprite)arg1);
-			this.myscene.detachChild((AnimatedSprite)arg1);
+			AnimatedSprite mosquito=(AnimatedSprite)arg1;
+			this.myscene.unregisterTouchArea(mosquito);
+			this.myscene.detachChild(mosquito);
+			
+			
+			float height=mosquito.getHeightScaled();
+			float width=mosquito.getWidthScaled();
+			
+			
 			
 			//show dead mosquito
 			this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
-			
+			this.spriteDeadMosquito.setHeight(height);
+			this.spriteDeadMosquito.setWidth(width);
 			
 			
 			myscene.attachChild(spriteDeadMosquito);
