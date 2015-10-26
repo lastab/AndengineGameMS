@@ -69,15 +69,15 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	public static int score=0;
 	public static int combo=0;
 	//public static int miss;
-	
-	
+
+
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
 	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
 	private LiveInsect snapmosquito;
 	private DeadInsect spriteDeadMosquito;
 	private Scene myscene;
-	
+
 	private Sound mSwattingSound, mMosquitoWings;
 	private Music mMusic;
 	private Font mFont;
@@ -87,7 +87,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	// Constructors
 	// ===========================================================
 
-	// ===========================================================
+	// ===========================================================backgroundSprite
 	// Getter & Setter
 	// ===========================================================
 
@@ -99,15 +99,15 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	public EngineOptions onCreateEngineOptions() {
 		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
-		
+
 		//sound needed
 		engineOptions.getAudioOptions().setNeedsSound(true);
 		//need music
 		engineOptions.getAudioOptions().setNeedsMusic(true);
 
 		return engineOptions;
-		
-		
+
+
 	}	
 
 	@Override
@@ -120,69 +120,68 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	@Override
 	public void onCreateResources() {
 		try{
-		BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
-		
-		ITexture backgroundTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
-			    @Override
-			    public InputStream open() throws IOException {
-			        return getAssets().open("gfx/background.png");
-			    }
-			});
-		
-		ITexture deadMosquitoTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
-		    @Override
-		    public InputStream open() throws IOException {
-		        return getAssets().open("gfx/deadmosquito.png");
-		    }
-		});
-		
+			BitmapTextureAtlasTextureRegionFactory.setAssetBasePath("gfx/");
 
-		this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
-		
-		
-		this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
-		this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",5,1);
-				//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
-		
-		this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
-			
-		try {
-			this.mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
-			this.mBitmapTextureAtlas.load();
-		} catch (TextureAtlasBuilderException e) {
-			Debug.e(e);
-		}
-		
-		
-		//load texture
-		backgroundTexture.load();
-		deadMosquitoTexture.load();
-		
-		
-		//fonts
-		final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
-		this.mFont = new Font(this.getFontManager(), fontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 40, true, Color.WHITE);
-		this.mFont.load();
-		
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			ITexture backgroundTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+				@Override
+				public InputStream open() throws IOException {
+					return getAssets().open("gfx/background.png");
+				}
+			});
+
+			ITexture deadMosquitoTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
+				@Override
+				public InputStream open() throws IOException {
+					return getAssets().open("gfx/deadmosquito.png");
+				}
+			});
+
+
+			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
+
+
+			this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
+			this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",5,1);
+			//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
+
+			this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
+
+			try {
+				this.mBitmapTextureAtlas.build(new BlackPawnTextureAtlasBuilder<IBitmapTextureAtlasSource, BitmapTextureAtlas>(0, 0, 1));
+				this.mBitmapTextureAtlas.load();
+			} catch (TextureAtlasBuilderException e) {
+				Debug.e(e);
+			}
+
+
+			//load texture
+			backgroundTexture.load();
+			deadMosquitoTexture.load();
+
+
+			//fonts
+			final ITexture fontTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 256, TextureOptions.BILINEAR);
+			this.mFont = new Font(this.getFontManager(), fontTexture, Typeface.create(Typeface.DEFAULT, Typeface.BOLD), 40, true, Color.WHITE);
+			this.mFont.load();
+
+		} catch (IOException e1) {			
 			e1.printStackTrace();
 		}
-		
-		
+
+
 		//=============================================================================================================
 		//sounds
 		//=============================================================================================================
-		
+
 		SoundFactory.setAssetBasePath("mfx/");
 		//swatting sound
 		try {
 			this.mSwattingSound = SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "swatting.ogg");
-			
+
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
-		
+
 		//wings sound
 		try {
 			this.mMosquitoWings= SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "fly.ogg");
@@ -190,8 +189,8 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
-		
-		
+
+
 		//=============================================================================================================
 		//Music
 		//=============================================================================================================
@@ -202,7 +201,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
-		
+
 	}
 
 	@Override
@@ -212,24 +211,27 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		final Scene scene = new Scene();		
 		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
-		
+
+
+
 		scene.attachChild(backgroundSprite);
-		
+
 		myscene=scene;
-		
+
 		myscene.setOnAreaTouchListener(this);
+		scene.registerTouchArea(backgroundSprite);
 		generateMosquito(scene);
 		generateMosquito(scene);
 		mMusic.play();	
 
-		
-		
+
+
 		//text
 		scoreText = new Text(CAMERA_WIDTH-200,10, this.mFont, "Score:", "Score: XXXXX".length(), this.getVertexBufferObjectManager());
 		myscene.attachChild(scoreText);
-		
+
 		return scene;
-		
+
 
 	}
 
@@ -238,74 +240,87 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	// ===========================================================
 	public void generateMosquito(Scene scene){
 		snapmosquito = new LiveInsect(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
+		snapmosquito.setHeight(62);
+		snapmosquito.setWidth(62);
 		snapmosquito.animate(50);
-		
-		
-		
-		
+
+
+
+
 		scene.registerTouchArea(snapmosquito);
 		scene.attachChild(snapmosquito);
-		
-		
+
+
 		//enable wings sound
 		mMosquitoWings.play();
-		
+
 	}
 
 
 	@Override
 	public boolean onAreaTouched(TouchEvent arg0, ITouchArea arg1, float arg2,
 			float arg3) {
-		
+
 		if (arg0.getAction()==TouchEvent.ACTION_DOWN)
 		{
+			AnimatedSprite mosquito;
+			try{
+				mosquito=(AnimatedSprite)arg1;
+			}catch(Exception e){
+				//touched the background
+					combo=0;
+			//generateMosquito(myscene);
+				return false;
+			}
+
+
 			//delete mosquito
-			AnimatedSprite mosquito=(AnimatedSprite)arg1;
+
 			this.myscene.unregisterTouchArea(mosquito);
 			this.myscene.detachChild(mosquito);
-			
-			
-			
-			
-			
+
+
+
+
+
 			//show dead mosquito
 			this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
-			
-			
+
+
 			//Scaling the size of dead mosquito=size of live mosquito
-			 float height=mosquito.getHeightScaled();
-			 float width=mosquito.getWidthScaled();
+			float height=mosquito.getHeightScaled();
+			float width=mosquito.getWidthScaled();
 			this.spriteDeadMosquito.setHeight(height);
 			this.spriteDeadMosquito.setWidth(width);
-			
-			
+
+
 			myscene.attachChild(spriteDeadMosquito);
 			generateMosquito(myscene);
-			
-			
+
+
 			//generate swatting sound
 			this.mSwattingSound.play();
-			
+
 			//stop wing sound
 			//this.mMosquitoWings.stop();
-			
+
 			//increase the score
 			combo++;
 			score+=combo;
-			
-			
+
+
 			//display Score
 			scoreText.setText("Score:"+score);
-			
+
 			//call garbage collection
 			System.gc();
 		}
 		return false;
 	}
-	
-	
-	
-	
+
+
+
+
 	// ===========================================================
 	// Inner and Anonymous Classes
 	// ===========================================================
