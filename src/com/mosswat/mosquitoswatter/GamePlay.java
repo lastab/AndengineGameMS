@@ -47,6 +47,7 @@ import android.graphics.Typeface;
 
 import com.mosswat.gameelements.DeadInsect;
 import com.mosswat.gameelements.LiveInsect;
+import com.mosswat.gameelements.Moon;
 
 /**
  * (c) 2010 Nicolas Gramlich
@@ -72,10 +73,11 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
-	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion;
+	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion,mMoonTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
 	private LiveInsect snapmosquito;
 	private DeadInsect spriteDeadMosquito;
+	private AnimatedSprite spriteMoon;
 	private Scene myscene;
 
 	private Sound mSwattingSound, mMosquitoWings;
@@ -137,11 +139,12 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			});
 
 
-			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 256, TextureOptions.NEAREST);
+			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 512, TextureOptions.NEAREST);
 
 
 			this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
 			this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",5,1);
+			this.mMoonTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"moon.png",1,1);
 			//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
 
 			this.mBackgroundTextureRegion = TextureRegionFactory.extractFromTexture(backgroundTexture);
@@ -220,6 +223,8 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 		myscene.setOnAreaTouchListener(this);
 		scene.registerTouchArea(backgroundSprite);
+		spriteMoon= new Moon(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMoonTextureRegion, this.getVertexBufferObjectManager());
+		scene.attachChild(spriteMoon);
 		generateMosquito(scene);
 		generateMosquito(scene);
 		mMusic.play();	
