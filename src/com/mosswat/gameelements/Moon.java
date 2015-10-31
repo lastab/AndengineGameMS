@@ -17,7 +17,7 @@ public class Moon extends AnimatedSprite{
 			p1y=0,
 			p2y=GamePlay.CAMERA_HEIGHT;
 	
-	
+
 	int x,y;
 	
 	PhysicsHandler mPhysicsHandler;
@@ -25,8 +25,6 @@ public class Moon extends AnimatedSprite{
 	
 	public Moon(final float pX, final float pY, final TiledTextureRegion pTextureRegion, final VertexBufferObjectManager pVertexBufferObjectManager) {
 		super(pX, pY, pTextureRegion, pVertexBufferObjectManager);
-		
-		
 		
 		x=p0x;
 		y=p0y;

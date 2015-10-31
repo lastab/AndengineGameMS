@@ -68,7 +68,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	// ===========================================================
 
 	public static int score=0;
-	public static int combo=0;
+	//	public static int combo=0;
 	//public static int miss;
 
 
@@ -80,8 +80,8 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	private AnimatedSprite spriteMoon;
 	private Scene myscene;
 
-	private Sound mSwattingSound, mMosquitoWings;
-	private Music mMusic;
+	private Sound mSwattingSound;
+	private Music mMusic, mMosquitoWings;
 	private Font mFont;
 	public Text scoreText; 
 
@@ -185,13 +185,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			Debug.e(e);
 		}
 
-		//wings sound
-		try {
-			this.mMosquitoWings= SoundFactory.createSoundFromAsset(this.mEngine.getSoundManager(), this, "fly.ogg");
-			this.mMosquitoWings.setLooping(true);
-		} catch (final IOException e) {
-			Debug.e(e);
-		}
+		
 
 
 		//=============================================================================================================
@@ -204,6 +198,13 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		} catch (final IOException e) {
 			Debug.e(e);
 		}
+		//wings sound
+				try {
+					this.mMosquitoWings= MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(),this, "fly.ogg");
+					this.mMosquitoWings.setLooping(true);
+				} catch (final IOException e) {
+					Debug.e(e);
+				}
 
 	}
 
@@ -222,12 +223,13 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		myscene=scene;
 
 		myscene.setOnAreaTouchListener(this);
-		scene.registerTouchArea(backgroundSprite);
+		
 		spriteMoon= new Moon(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMoonTextureRegion, this.getVertexBufferObjectManager());
 		scene.attachChild(spriteMoon);
 		generateMosquito(scene);
 		generateMosquito(scene);
-		mMusic.play();	
+		mMusic.play();
+		mMosquitoWings.play();
 
 
 
@@ -239,6 +241,29 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 
 	}
+	
+	
+	
+
+	@Override
+	public void onResumeGame() {
+		super.onResumeGame();
+
+		if (mMosquitoWings!=null)
+			this.mMosquitoWings.play();
+		this.mMusic.play();
+	}
+
+	@Override
+	public void onPauseGame() {
+		super.onPauseGame();
+
+		if (mMosquitoWings!=null)
+			this.mMosquitoWings.pause();
+		this.mMusic.pause();
+	}
+
+
 
 	// ===========================================================
 	// Methods
@@ -256,8 +281,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		scene.attachChild(snapmosquito);
 
 
-		//enable wings sound
-		mMosquitoWings.play();
+		
 
 	}
 
@@ -272,9 +296,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			try{
 				mosquito=(AnimatedSprite)arg1;
 			}catch(Exception e){
-				//touched the background
-					combo=0;
-			//generateMosquito(myscene);
+		
 				return false;
 			}
 
@@ -309,9 +331,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			//stop wing sound
 			//this.mMosquitoWings.stop();
 
-			//increase the score
-			combo++;
-			score+=combo;
+			score+=1;
 
 
 			//display Score
