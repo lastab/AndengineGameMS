@@ -28,7 +28,7 @@ public class LiveInsect extends AnimatedSprite{
 		this.mPhysicsHandler = new PhysicsHandler(this);
 		this.registerUpdateHandler(this.mPhysicsHandler);		
 		this.mPhysicsHandler.setVelocity(SPEED_X,SPEED_Y);
-		this.registerEntityModifier(new LoopEntityModifier(new SequenceEntityModifier(new ScaleModifier(10, 1, 2))));
+		this.registerEntityModifier(new LoopEntityModifier(new SequenceEntityModifier(new ScaleModifier(5, 1, 2))));
 		//this.mPhysicsHandler.setAcceleration(0.0f, SPEED);
 		
 	}

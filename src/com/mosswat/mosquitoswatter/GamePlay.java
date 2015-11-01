@@ -324,7 +324,6 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			myscene.attachChild(spriteDeadMosquito);
 			generateMosquito(myscene);
 
-
 			//generate swatting sound
 			this.mSwattingSound.play();
 
