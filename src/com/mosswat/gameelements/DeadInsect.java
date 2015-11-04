@@ -6,11 +6,13 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.math.MathUtils;
 
+import com.badlogic.gdx.math.Vector2;
 import com.mosswat.mosquitoswatter.GamePlay;
 
 public class DeadInsect extends AnimatedSprite{
 
-	public static final float ACCLERATION=50.0f;
+	//public static float accleration=50.0f;
+	 public static float speedX,speedY; 
 	PhysicsHandler mPhysicsHandler;
 	private int gravestoneNo;
 	
@@ -19,8 +21,8 @@ public class DeadInsect extends AnimatedSprite{
 		this.mPhysicsHandler = new PhysicsHandler(this);
 		this.registerUpdateHandler(this.mPhysicsHandler);
 		
-		this.mPhysicsHandler.setVelocity(0.0f, 100.0f);
-		this.mPhysicsHandler.setAcceleration(0.0f, ACCLERATION);
+		//this.mPhysicsHandler.setVelocity(0.0f, 100.0f);
+		//this.mPhysicsHandler.setAcceleration(0.0f, ACCLERATION);
 		
 		//randomize the gravestone
 		gravestoneNo=MathUtils.random(1, 4);
@@ -41,6 +43,8 @@ public class DeadInsect extends AnimatedSprite{
 			//dont know why I did this
 			this.clearUpdateHandlers();
 		}
+		else
+			this.mPhysicsHandler.setVelocity(speedX*40,speedY*40);
 		super.onManagedUpdate(pSecondsElapsed);
 	}
 	

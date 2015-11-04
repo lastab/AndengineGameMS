@@ -18,10 +18,15 @@ import org.andengine.entity.scene.IOnSceneTouchListener;
 import org.andengine.entity.scene.ITouchArea;
 import org.andengine.entity.scene.Scene;
 import org.andengine.entity.scene.background.Background;
+import org.andengine.entity.scene.menu.MenuScene;
+import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
+import org.andengine.entity.scene.menu.item.IMenuItem;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
 import org.andengine.entity.util.FPSLogger;
+import org.andengine.input.sensor.acceleration.AccelerationData;
+import org.andengine.input.sensor.acceleration.IAccelerationListener;
 import org.andengine.input.touch.TouchEvent;
 import org.andengine.opengl.font.Font;
 import org.andengine.opengl.font.FontFactory;
@@ -56,7 +61,7 @@ import com.mosswat.gameelements.Moon;
  * @author Nicolas Gramlich
  * @since 11:54:51 - 03.04.2010
  */
-public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchListener {
+public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchListener ,IOnMenuItemClickListener,IAccelerationListener{
 	// ===========================================================
 	// Constants
 	// ===========================================================
@@ -236,7 +241,6 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		//text
 		scoreText = new Text(CAMERA_WIDTH-200,10, this.mFont, "Score:", "Score: XXXXX".length(), this.getVertexBufferObjectManager());
 		myscene.attachChild(scoreText);
-
 		return scene;
 
 
@@ -279,6 +283,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 		scene.registerTouchArea(snapmosquito);
 		scene.attachChild(snapmosquito);
+		this.enableAccelerationSensor(this);
 
 
 		
@@ -340,6 +345,29 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			System.gc();
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onMenuItemClicked(MenuScene arg0, IMenuItem arg1,
+			float arg2, float arg3) {
+		
+		return false;
+	}
+
+	@Override
+	public void onAccelerationAccuracyChanged(AccelerationData arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onAccelerationChanged(AccelerationData arg0) {
+		if (arg0.getY()>0){
+			LiveInsect.rotationAngle=((float) -Math.atan(arg0.getX()/arg0.getY())*45);
+			DeadInsect.speedX=arg0.getX();
+			DeadInsect.speedY=arg0.getY();
+		}
+		
 	}
 
 
