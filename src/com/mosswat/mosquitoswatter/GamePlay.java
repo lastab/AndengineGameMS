@@ -10,6 +10,7 @@ import org.andengine.audio.sound.SoundFactory;
 import org.andengine.engine.Engine;
 import org.andengine.engine.FixedStepEngine;
 import org.andengine.engine.camera.Camera;
+import org.andengine.engine.camera.ZoomCamera;
 import org.andengine.engine.options.EngineOptions;
 import org.andengine.engine.options.ScreenOrientation;
 import org.andengine.engine.options.resolutionpolicy.RatioResolutionPolicy;
@@ -21,6 +22,7 @@ import org.andengine.entity.scene.background.Background;
 import org.andengine.entity.scene.menu.MenuScene;
 import org.andengine.entity.scene.menu.MenuScene.IOnMenuItemClickListener;
 import org.andengine.entity.scene.menu.item.IMenuItem;
+import org.andengine.entity.scene.menu.item.SpriteMenuItem;
 import org.andengine.entity.sprite.AnimatedSprite;
 import org.andengine.entity.sprite.Sprite;
 import org.andengine.entity.text.Text;
@@ -49,9 +51,13 @@ import org.andengine.util.math.MathUtils;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.opengl.GLES20;
+import android.util.Log;
+import android.view.KeyEvent;
 
 import com.mosswat.gameelements.DeadInsect;
-import com.mosswat.gameelements.LiveInsect;
+import com.mosswat.gameelements.LiveButterfly;
+import com.mosswat.gameelements.LiveMosquito;
 import com.mosswat.gameelements.Moon;
 
 /**
@@ -68,22 +74,39 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 	public static final int CAMERA_WIDTH = 800;
 	public static final int CAMERA_HEIGHT = 480;
+
+	protected static final int MENU_RESET = 0;
+	protected static final int MENU_QUIT = MENU_RESET + 1;
+
 	// ===========================================================
 	// Fields
 	// ===========================================================
+
+
+	protected MenuScene mMenuScene;
+
+	private BitmapTextureAtlas mMenuTexture;
+	protected ITextureRegion mMenuResetTextureRegion;
+	protected ITextureRegion mMenuQuitTextureRegion;
+
+
+
+
 
 	public static int score=0;
 	//	public static int combo=0;
 	//public static int miss;
 
+	private Camera camera;
 
 	private BuildableBitmapTextureAtlas mBitmapTextureAtlas;
-	private TiledTextureRegion mMosquitoTextureRegion,mDeadMosquitoTextureRegion,mMoonTextureRegion;
+	private TiledTextureRegion mMosquitoTextureRegion,mButterflyTextureRegion,mDeadMosquitoTextureRegion,mMoonTextureRegion;
 	private ITextureRegion mBackgroundTextureRegion;
-	private LiveInsect snapmosquito;
+	private LiveMosquito snapmosquito;
+	private LiveButterfly snapbutterfly;
 	private DeadInsect spriteDeadMosquito;
-	private AnimatedSprite spriteMoon;
-	private Scene myscene;
+	private Moon spriteMoon;
+	private Scene mMainScene;
 
 	private Sound mSwattingSound;
 	private Music mMusic, mMosquitoWings;
@@ -104,7 +127,8 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 
 	@Override
 	public EngineOptions onCreateEngineOptions() {
-		final Camera camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		camera = new Camera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
+		final ZoomCamera mcamera = new ZoomCamera(0, 0, CAMERA_WIDTH, CAMERA_HEIGHT);
 		final EngineOptions engineOptions = new EngineOptions(true, ScreenOrientation.LANDSCAPE_FIXED, new RatioResolutionPolicy(CAMERA_WIDTH, CAMERA_HEIGHT), camera);
 
 		//sound needed
@@ -132,7 +156,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			ITexture backgroundTexture= new BitmapTexture(this.getTextureManager(), new IInputStreamOpener() {
 				@Override
 				public InputStream open() throws IOException {
-					return getAssets().open("gfx/background.png");
+					return getAssets().open("gfx/background.jpg");
 				}
 			});
 
@@ -144,10 +168,10 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			});
 
 
-			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 512, 512, TextureOptions.NEAREST);
+			this.mBitmapTextureAtlas = new BuildableBitmapTextureAtlas(this.getTextureManager(), 812, 812, TextureOptions.NEAREST);
 
-
-			this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitospritesheet.png", 4, 1);
+			this.mButterflyTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "butterflysprite.png", 4, 2);
+			this.mMosquitoTextureRegion = BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas, this, "mosquitosprite.png", 4, 1);
 			this.mDeadMosquitoTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"deadmosquito.png",5,1);
 			this.mMoonTextureRegion= BitmapTextureAtlasTextureRegionFactory.createTiledFromAsset(this.mBitmapTextureAtlas,this,"moon.png",1,1);
 			//TextureRegionFactory.extractFromTexture(deadMosquitoTexture);
@@ -161,6 +185,11 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 				Debug.e(e);
 			}
 
+
+			this.mMenuTexture = new BitmapTextureAtlas(this.getTextureManager(), 256, 128, TextureOptions.BILINEAR);
+			this.mMenuResetTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mMenuTexture, this, "menu_reset.png", 0, 0);
+			this.mMenuQuitTextureRegion = BitmapTextureAtlasTextureRegionFactory.createFromAsset(this.mMenuTexture, this, "menu_quit.png", 0, 50);
+			this.mMenuTexture.load();
 
 			//load texture
 			backgroundTexture.load();
@@ -190,7 +219,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			Debug.e(e);
 		}
 
-		
+
 
 
 		//=============================================================================================================
@@ -204,12 +233,12 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 			Debug.e(e);
 		}
 		//wings sound
-				try {
-					this.mMosquitoWings= MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(),this, "fly.ogg");
-					this.mMosquitoWings.setLooping(true);
-				} catch (final IOException e) {
-					Debug.e(e);
-				}
+		try {
+			this.mMosquitoWings= MusicFactory.createMusicFromAsset(this.mEngine.getMusicManager(),this, "fly.ogg");
+			this.mMosquitoWings.setLooping(true);
+		} catch (final IOException e) {
+			Debug.e(e);
+		}
 
 	}
 
@@ -217,42 +246,48 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	public Scene onCreateScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
+		this.createMenuScene();
+
+
+
 		final Scene scene = new Scene();		
 		scene.setBackground(new Background(0.09804f, 0.6274f, 0.8784f));
 		Sprite backgroundSprite = new Sprite(0, 0, this.mBackgroundTextureRegion, getVertexBufferObjectManager());
 
 
-
 		scene.attachChild(backgroundSprite);
+		mMainScene=scene;
 
-		myscene=scene;
+		mMainScene.setOnAreaTouchListener(this);
 
-		myscene.setOnAreaTouchListener(this);
-		
 		spriteMoon= new Moon(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMoonTextureRegion, this.getVertexBufferObjectManager());
-		scene.attachChild(spriteMoon);
+		//scene.attachChild(spriteMoon);
 		generateMosquito(scene);
 		generateMosquito(scene);
+		//generateButterfly(scene);
 		mMusic.play();
 		mMosquitoWings.play();
 
 
-
 		//text
-		scoreText = new Text(CAMERA_WIDTH-200,10, this.mFont, "Score:", "Score: XXXXX".length(), this.getVertexBufferObjectManager());
-		myscene.attachChild(scoreText);
+		scoreText = new Text(CAMERA_WIDTH-200,10, this.mFont, "Score:", "Score: XXXXXXXXXXXXX".length(), this.getVertexBufferObjectManager());
+		mMainScene.attachChild(scoreText);
+
+
+		//camera.setCenter(CAMERA_WIDTH, CAMERA_HEIGHT/2);
 		return scene;
 
 
 	}
-	
-	
-	
+
+
+
 
 	@Override
 	public void onResumeGame() {
 		super.onResumeGame();
 
+		this.enableAccelerationSensor(this);
 		if (mMosquitoWings!=null)
 			this.mMosquitoWings.play();
 		this.mMusic.play();
@@ -262,6 +297,7 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	public void onPauseGame() {
 		super.onPauseGame();
 
+		this.disableAccelerationSensor();
 		if (mMosquitoWings!=null)
 			this.mMosquitoWings.pause();
 		this.mMusic.pause();
@@ -273,10 +309,10 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 	// Methods
 	// ===========================================================
 	public void generateMosquito(Scene scene){
-		snapmosquito = new LiveInsect(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
+		snapmosquito = new LiveMosquito(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mMosquitoTextureRegion, this.getVertexBufferObjectManager());
 		snapmosquito.setHeight(62);
 		snapmosquito.setWidth(62);
-		snapmosquito.animate(50);
+		snapmosquito.animate(40);
 
 
 
@@ -286,9 +322,28 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		this.enableAccelerationSensor(this);
 
 
-		
+
 
 	}
+	
+	public void generateButterfly(Scene scene){
+		snapbutterfly= new LiveButterfly(MathUtils.random(1, CAMERA_WIDTH-100),MathUtils.random(1, CAMERA_HEIGHT-100), this.mButterflyTextureRegion, this.getVertexBufferObjectManager());
+		snapbutterfly.setHeight(62);
+		snapbutterfly.setWidth(62);
+		snapbutterfly.animate(40);
+
+
+
+
+		scene.registerTouchArea(snapbutterfly);
+		scene.attachChild(snapbutterfly);
+		this.enableAccelerationSensor(this);
+
+
+
+
+	}
+
 
 
 	@Override
@@ -299,76 +354,204 @@ public class GamePlay extends SimpleBaseGameActivity implements  IOnAreaTouchLis
 		{
 			AnimatedSprite mosquito;
 			try{
-				mosquito=(AnimatedSprite)arg1;
+				mosquito=(LiveMosquito)arg1;
+				//delete mosquito
+
+				this.mMainScene.unregisterTouchArea(mosquito);
+				this.mMainScene.detachChild(mosquito);
+
+
+
+
+
+				//show dead mosquito
+				this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+
+
+				//Scaling the size of dead mosquito=size of live mosquito
+				float height=mosquito.getHeightScaled();
+				float width=mosquito.getWidthScaled();
+				this.spriteDeadMosquito.setHeight(height);
+				this.spriteDeadMosquito.setWidth(width);
+
+
+				mMainScene.attachChild(spriteDeadMosquito);
+				generateMosquito(mMainScene);
+				
+
+				//generate swatting sound
+				this.mSwattingSound.play();
+
+				//stop wing sound
+				//this.mMosquitoWings.stop();
+
+				score+=1;
+
+
+				//display Score
+				scoreText.setText("Kills:"+score);
+
+				//if kills is divisible by 10 add new mosquito
+				if (score%10==0)
+					generateMosquito(mMainScene);
+
+				//call garbage collection
+				System.gc();
+
 			}catch(Exception e){
-		
-				return false;
+				try{
+					mosquito=(LiveButterfly)arg1;
+					//delete mosquito
+
+					this.mMainScene.unregisterTouchArea(mosquito);
+					this.mMainScene.detachChild(mosquito);
+
+
+
+
+
+					//show dead mosquito
+					//this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
+
+
+					//Scaling the size of dead mosquito=size of live mosquito
+					//float height=mosquito.getHeightScaled();
+					//float width=mosquito.getWidthScaled();
+					//this.spriteDeadMosquito.setHeight(height);
+					//this.spriteDeadMosquito.setWidth(width);
+
+
+					//mMainScene.attachChild(spriteDeadMosquito);
+					//generateMosquito(mMainScene);
+
+					//generate swatting sound
+					this.mSwattingSound.play();
+
+					//stop wing sound
+					//this.mMosquitoWings.stop();
+
+					score-=1;
+
+
+					//display Score
+					scoreText.setText("Kills:"+score);
+
+					//if kills is divisible by 10 add new mosquito
+					//if (score%10==0)
+						//generateMosquito(mMainScene);
+
+					//call garbage collection
+					System.gc();
+
+
+				}catch(Exception e2){
+
+
+					return false;}
 			}
 
 
-			//delete mosquito
-
-			this.myscene.unregisterTouchArea(mosquito);
-			this.myscene.detachChild(mosquito);
-
-
-
-
-
-			//show dead mosquito
-			this.spriteDeadMosquito=new DeadInsect(arg0.getX()-61, arg0.getY()-50, mDeadMosquitoTextureRegion, getVertexBufferObjectManager());
-
-
-			//Scaling the size of dead mosquito=size of live mosquito
-			float height=mosquito.getHeightScaled();
-			float width=mosquito.getWidthScaled();
-			this.spriteDeadMosquito.setHeight(height);
-			this.spriteDeadMosquito.setWidth(width);
-
-
-			myscene.attachChild(spriteDeadMosquito);
-			generateMosquito(myscene);
-
-			//generate swatting sound
-			this.mSwattingSound.play();
-
-			//stop wing sound
-			//this.mMosquitoWings.stop();
-
-			score+=1;
-
-
-			//display Score
-			scoreText.setText("Score:"+score);
-
-			//call garbage collection
-			System.gc();
 		}
 		return false;
 	}
 
 	@Override
-	public boolean onMenuItemClicked(MenuScene arg0, IMenuItem arg1,
+	public boolean onMenuItemClicked(MenuScene arg0, IMenuItem pMenuItem,
 			float arg2, float arg3) {
-		
-		return false;
+
+		switch(pMenuItem.getID()) {
+		case MENU_RESET:
+			/* Restart the animation. */
+			this.mMainScene.reset();
+			/* Remove the menu and reset it. */
+			this.mMainScene.clearChildScene();
+			this.mMenuScene.reset();
+			if (mMosquitoWings!=null)
+				this.mMosquitoWings.play();
+			this.mMusic.play();
+			return true;
+		case MENU_QUIT:
+			/* End Activity. */
+			this.finish();
+			return true;
+		default:
+			return false;
+		}
+
+
+
 	}
 
 	@Override
 	public void onAccelerationAccuracyChanged(AccelerationData arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void onAccelerationChanged(AccelerationData arg0) {
-		if (arg0.getY()>0){
-			LiveInsect.rotationAngle=((float) -Math.atan(arg0.getX()/arg0.getY())*45);
+		if (arg0.getY()>1){
+			LiveMosquito.rotationAngle=((float) -Math.atan(arg0.getX()/arg0.getY())*180*7/22);
 			DeadInsect.speedX=arg0.getX();
 			DeadInsect.speedY=arg0.getY();
+			Moon.rotationAngle=LiveMosquito.rotationAngle;
+			//	scoreText.setText( arg0.getX()+"\n"+arg0.getY());
 		}
-		
+
 	}
+
+
+
+
+	@Override
+	public boolean onKeyDown(final int pKeyCode, final KeyEvent pEvent) {
+		if(pKeyCode == KeyEvent.KEYCODE_BACK && pEvent.getAction() == KeyEvent.ACTION_DOWN) {
+			if(this.mMainScene.hasChildScene()) {
+				/* Remove the menu and reset it. */
+				this.mMenuScene.back();
+				if (mMosquitoWings!=null)
+					this.mMosquitoWings.play();
+				this.mMusic.play();
+
+			} else {
+				/* Attach the menu. */
+				this.mMainScene.setChildScene(this.mMenuScene, false, true, true);
+				if (mMosquitoWings!=null)
+					this.mMosquitoWings.pause();
+				this.mMusic.pause();
+
+			}
+			return true;
+		} else {
+			return super.onKeyDown(pKeyCode, pEvent);
+		}
+	}
+
+
+
+
+
+
+
+	//menu scene
+	protected void createMenuScene() {
+		this.mMenuScene = new MenuScene(this.camera);
+
+		final SpriteMenuItem resetMenuItem = new SpriteMenuItem(MENU_RESET, this.mMenuResetTextureRegion, this.getVertexBufferObjectManager());
+		resetMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		this.mMenuScene.addMenuItem(resetMenuItem);
+
+		final SpriteMenuItem quitMenuItem = new SpriteMenuItem(MENU_QUIT, this.mMenuQuitTextureRegion, this.getVertexBufferObjectManager());
+		quitMenuItem.setBlendFunction(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
+		this.mMenuScene.addMenuItem(quitMenuItem);
+
+		this.mMenuScene.buildAnimations();
+
+		this.mMenuScene.setBackgroundEnabled(false);
+
+		this.mMenuScene.setOnMenuItemClickListener(this);
+	}
+
 
 
 

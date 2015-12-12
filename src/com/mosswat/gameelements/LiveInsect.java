@@ -1,6 +1,8 @@
 package com.mosswat.gameelements;
 
 import org.andengine.engine.handler.physics.PhysicsHandler;
+import org.andengine.engine.handler.timer.ITimerCallback;
+import org.andengine.engine.handler.timer.TimerHandler;
 import org.andengine.entity.modifier.LoopEntityModifier;
 import org.andengine.entity.modifier.ScaleModifier;
 import org.andengine.entity.modifier.SequenceEntityModifier;
@@ -11,16 +13,19 @@ import org.andengine.opengl.texture.region.TiledTextureRegion;
 import org.andengine.opengl.vbo.VertexBufferObjectManager;
 import org.andengine.util.math.MathUtils;
 
+import android.R.string;
+
 import com.mosswat.mosquitoswatter.GamePlay;
 
 public class LiveInsect extends AnimatedSprite {
-	float x,y;
+	
 	public static float rotationAngle;
 	
 	
 	public final float SPEED_X=100.0f;
 	public final float SPEED_Y=100.0f;
 	
+	 
 	private float oldmX=0,
 					oldmY=0;
 	float oldDistance,newDistance;
@@ -36,6 +41,7 @@ public class LiveInsect extends AnimatedSprite {
 		this.mPhysicsHandler.setVelocity(SPEED_X,SPEED_Y);
 		this.registerEntityModifier(new LoopEntityModifier(new SequenceEntityModifier(new ScaleModifier(5, 1, 2))));
 		//this.mPhysicsHandler.setAcceleration(0.0f, SPEED);
+	
 		
 		
 		
